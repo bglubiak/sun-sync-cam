@@ -1,0 +1,13 @@
+# Build output
+dist/
+build/
+
+# Node modules
+node_modules/
+
+# Coverage reports
+coverage/
+
+# Config files that have special formatting
+package-lock.json
+yarn.lock
