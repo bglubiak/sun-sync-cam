@@ -12,6 +12,7 @@ Automated LED control system that adjusts lighting based on sunrise and sunset t
 
 ## Prerequisites
 
+- Your camera must have HTTP enabled
 - Node.js 14 or higher
 - npm
 - Network camera with LED control capabilities
@@ -21,3 +22,10 @@ Automated LED control system that adjusts lighting based on sunrise and sunset t
 
 ```bash
 npm install
+````
+
+## Usage
+
+```bash
+ts-node src/index.ts
+```
