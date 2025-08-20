@@ -4,6 +4,20 @@ const USER_NAME = process.env.CAMERA_USER;
 const PASSWORD = process.env.CAMERA_PASSWORD;
 const BASE_URL = process.env.CAMERA_BASE_URL;
 
+// Validate required environment variables
+if (!USER_NAME) {
+  console.error('Missing required environment variable: CAMERA_USER');
+  process.exit(1);
+}
+if (!PASSWORD) {
+  console.error('Missing required environment variable: CAMERA_PASSWORD');
+  process.exit(1);
+}
+if (!BASE_URL) {
+  console.error('Missing required environment variable: CAMERA_BASE_URL');
+  process.exit(1);
+}
+
 // --- Constants ---
 const CMD_LOGIN = 'Login';
 const CMD_SET_WHITE_LED = 'SetWhiteLed';
