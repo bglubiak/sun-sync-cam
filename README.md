@@ -2,6 +2,8 @@
 
 Automated LED control system that adjusts lighting based on sunrise and sunset times for your REOLINK camera. The system interfaces with a network camera's LED controls and automatically updates the lighting schedule.
 
+AI code review testing
+
 ## Features
 
 - Fetches daily sunrise and sunset times based on geographical location
