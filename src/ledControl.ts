@@ -1,86 +1,98 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { type AxiosResponse } from "axios";
 
 interface LoginResponse {
-  cmd: string;
-  code: number;
-  value: {
-    Token: {
-      leaseTime: number;
-      name: string;
-    };
-  };
+	cmd: string;
+	code: number;
+	value: {
+		Token: {
+			leaseTime: number;
+			name: string;
+		};
+	};
 }
 
-export async function setWhiteLed(sunrise: string, sunset: string): Promise<void> {
-  const userName = '';
-  const password = '';
-  const baseUrl = ``; // http://<camera-ip>
+interface CameraConfig {
+	userName: string;
+	password: string;
+	baseUrl: string;
+}
 
-  // First, get the token
-  const loginResponse: AxiosResponse<LoginResponse[]> = await axios.post(
-    `${baseUrl}/api.cgi?cmd=Login`,
-    [
-      {
-        cmd: 'Login',
-        param: {
-          User: {
-            Version: '0',
-            userName,
-            password,
-          },
-        },
-      },
-    ],
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
-  );
+export async function setWhiteLed(
+	sunrise: string,
+	sunset: string,
+	cameras: CameraConfig[],
+): Promise<void> {
+	for (const camera of cameras) {
+		const { userName, password, baseUrl } = camera;
 
-  const token = loginResponse.data[0].value.Token.name;
-  if (!token) {
-    throw new Error('Failed to get authentication token');
-  }
+		// First, get the token
+		const loginResponse: AxiosResponse<LoginResponse[]> = await axios.post(
+			`${baseUrl}/api.cgi?cmd=Login`,
+			[
+				{
+					cmd: "Login",
+					param: {
+						User: {
+							Version: "0",
+							userName,
+							password,
+						},
+					},
+				},
+			],
+			{
+				headers: {
+					"Content-Type": "application/json",
+				},
+			},
+		);
 
-  console.log('Successfully authenticated with camera');
+		const token = loginResponse.data[0].value.Token.name;
+		if (!token) {
+			throw new Error(
+				`Failed to get authentication token for camera at ${baseUrl}`,
+			);
+		}
 
-  // Parse sunrise and sunset times
-  const [sunriseHour, sunriseMin] = sunrise.split(':').map(Number);
-  const [sunsetHour, sunsetMin] = sunset.split(':').map(Number);
+		console.log(`Successfully authenticated with camera at ${baseUrl}`);
 
-  // Make a request to control the LED using the token
-  const response: AxiosResponse = await axios.post(
-    `${baseUrl}/api.cgi?cmd=SetWhiteLed&token=${token}`,
-    [
-      {
-        cmd: 'SetWhiteLed',
-        param: {
-          WhiteLed: {
-            LightingSchedule: {
-              StartHour: sunsetHour,
-              StartMin: sunsetMin,
-              EndHour: sunriseHour,
-              EndMin: sunriseMin,
-            },
-            state: 0,
-            channel: 0,
-            mode: 3,
-            bright: 100,
-          },
-        },
-      },
-    ],
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
-  );
+		// Parse sunrise and sunset times
+		const [sunriseHour, sunriseMin] = sunrise.split(":").map(Number);
+		const [sunsetHour, sunsetMin] = sunset.split(":").map(Number);
 
-  if (response.data[0]?.code !== 0) {
-    throw new Error('Failed to update LED control');
-  }
+		// Make a request to control the LED using the token
+		const response: AxiosResponse = await axios.post(
+			`${baseUrl}/api.cgi?cmd=SetWhiteLed&token=${token}`,
+			[
+				{
+					cmd: "SetWhiteLed",
+					param: {
+						WhiteLed: {
+							LightingSchedule: {
+								StartHour: sunsetHour,
+								StartMin: sunsetMin,
+								EndHour: sunriseHour,
+								EndMin: sunriseMin,
+							},
+							state: 0,
+							channel: 0,
+							mode: 3,
+							bright: 100,
+						},
+					},
+				},
+			],
+			{
+				headers: {
+					"Content-Type": "application/json",
+				},
+			},
+		);
 
-  console.log('LED control successfully updated');
+		if (response.data[0]?.code !== 0) {
+			throw new Error(`Failed to update LED control for camera at ${baseUrl}`);
+		}
+
+		console.log(`LED control successfully updated for camera at ${baseUrl}`);
+	}
 }
